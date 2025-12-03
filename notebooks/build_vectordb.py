@@ -290,7 +290,7 @@ def main():
     # 전처리된 데이터 로드
     current_dir = os.path.dirname(os.path.abspath(__file__))
     project_root = os.path.dirname(current_dir)
-    data_path = os.path.join(project_root, "data", "processed", "youth_policies_preprocessed.json")
+    data_path = os.path.join(project_root, "data", "processed", "youth_policies_filtered_kr_revised.json")
     
     if not os.path.exists(data_path):
         print(f"❌ 전처리된 데이터를 찾을 수 없습니다: {data_path}")
