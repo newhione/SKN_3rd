@@ -182,12 +182,21 @@ def build_chromadb(policies, db_path="../data/vectordb"):
                 '대분류': policy.get('대분류', ''),
                 '중분류': policy.get('중분류', ''),
                 '주관기관명': policy.get('주관기관명', ''),
+                '운영기관명': policy.get('운영기관명', ''),
+                '등록기관명': policy.get('등록기관명', ''),
+                '상위기관명': policy.get('상위기관명', ''),
+                '상위등록기관명': policy.get('상위등록기관명', ''),
                 '신청URL': policy.get('신청URL', ''),
                 '정책키워드': policy.get('정책키워드', ''),
                 # 신청 관련
                 '신청기간': policy.get('신청기간', ''),
                 '신청방법': policy.get('신청방법', ''),
                 '제출서류': policy.get('제출서류', ''),
+                # 사업 기간
+                '사업시작일': policy.get('사업시작일', ''),
+                '사업종료일': policy.get('사업종료일', ''),
+                # 심사·선정
+                '선정방법': policy.get('선정방법', ''),
                 # 자격 관련
                 '추가자격조건': policy.get('추가자격조건', ''),
                 '참여제외대상': policy.get('참여제외대상', ''),
@@ -196,6 +205,19 @@ def build_chromadb(policies, db_path="../data/vectordb"):
                 # 지원금 관련
                 '최소지원금액': policy.get('최소지원금액', '0'),
                 '최대지원금액': policy.get('최대지원금액', '0'),
+                '기타지원조건': policy.get('기타지원조건', ''),
+                # 한글 변환된 필드들
+                '재공기관그룹': policy.get('재공기관그룹', ''),
+                '정책제공방법': policy.get('정책제공방법', ''),
+                '정책승인상태': policy.get('정책승인상태', ''),
+                '신청기간구분': policy.get('신청기간구분', ''),
+                '사업기간구분': policy.get('사업기간구분', ''),
+                '혼인상태': policy.get('혼인상태', ''),
+                '소득조건': policy.get('소득조건', ''),
+                '전공요건': policy.get('전공요건', ''),
+                '취업상태': policy.get('취업상태', ''),
+                '학력요건': policy.get('학력요건', ''),
+                '특화분야': policy.get('특화분야', ''),
             })
             ids.append(f"policy_{idx}")
             embeddings.append(embedding)
