@@ -145,12 +145,24 @@ def build_chromadb(policies, db_path="../data/vectordb"):
     # ChromaDB 클라이언트 초기화
     chroma_client = chromadb.PersistentClient(path=db_full_path)
     
-    # 기존 컬렉션 삭제 (있다면)
+    # 기존 컬렉션 삭제 (있으면)
     try:
         chroma_client.delete_collection(name="youth_policies")
         print("🗑️  기존 컬렉션 삭제")
     except:
         pass
+    
+    # 물리적 파일 정리 (세그먼트 폴더 삭제)
+    import shutil
+    for item in os.listdir(db_full_path):
+        item_path = os.path.join(db_full_path, item)
+        # UUID 형식의 폴더만 삭제 (chroma.sqlite3는 유지)
+        if os.path.isdir(item_path) and '-' in item:
+            try:
+                shutil.rmtree(item_path)
+                print(f"🗑️  세그먼트 폴더 삭제: {item}")
+            except:
+                pass
     
     # 새 컬렉션 생성
     collection = chroma_client.create_collection(

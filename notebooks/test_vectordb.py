@@ -134,9 +134,10 @@ def test_search(collection, query, top_k=5, user_info=None):
             if user_region:
                 org_name = metadata.get('주관기관명', '')
                 additional_cond = metadata.get('추가자격조건', '')
+                reg_group = metadata.get('재공기관그룹', '')
                 
                 # 전국 정책은 항상 포함
-                if '전국' in org_name:
+                if '전국' in org_name or '중앙부처' in reg_group:
                     region_match = True
                 else:
                     # 사용자 입력을 토큰으로 분리 (예: "경기도 의정부시" → ["경기", "의정부"])
