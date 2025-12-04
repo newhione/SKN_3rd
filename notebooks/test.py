@@ -355,7 +355,7 @@ class YouthPolicyRAG:
                 except:
                     pass
             
-            # 지역 필터링 (강화)
+            # 지역 필터링 (계층적 매칭: 전국 → 시/도 → 시/군/구)
             region_match = True
             if self.user_region:
                 org_name = metadata.get('주관기관명', '')
@@ -364,39 +364,47 @@ class YouthPolicyRAG:
                 
                 policy_name = metadata.get('정책명', 'N/A')
                 
-                # 전국 정책은 항상 포함
-                if '중앙부처' in reg_group:
+                # 1순위: 전국 정책은 항상 포함
+                if '중앙부처' in reg_group or '전국' in org_name:
                     region_match = True
-                    print(f"  ✓ 전국 정책: {policy_name} (중앙부처)")
-                elif '전국' in org_name:
-                    region_match = True
-                    print(f"  ✓ 전국 정책: {policy_name} (기관명: {org_name})")
+                    print(f"  ✓ 전국 정책: {policy_name} (기관: {org_name})")
                 else:
-                    # 사용자 입력을 토큰으로 분리
-                    user_region_tokens = []
+                    # 2순위: 시/도 단위 매칭 (구/군 입력 시에도 시/도 정책 포함)
                     sido_list = ['서울', '경기', '인천', '부산', '대구', '광주', '대전', '울산', '세종',
                                '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주']
+                    
+                    user_sido = None
                     for sido in sido_list:
                         if sido in self.user_region:
-                            user_region_tokens.append(sido)
+                            user_sido = sido
                             break
                     
-                    region_clean = self.user_region.replace('특별시', '').replace('광역시', '').replace('특별자치시', '')
-                    region_clean = region_clean.replace('도', '').replace('시', '').replace('군', '').replace('구', '').strip()
-                    
-                    for token in region_clean.split():
-                        if token and token not in user_region_tokens:
-                            user_region_tokens.append(token)
-                    
-                    region_match = False
-                    for token in user_region_tokens:
-                        if token in org_name or token in additional_cond:
-                            region_match = True
-                            print(f"  ✓ 지역 매칭: {policy_name} (토큰: {token}, 기관: {org_name})")
-                            break
-                    
-                    if not region_match:
-                        print(f"  ✗ 제외: {policy_name} (기관: {org_name})")
+                    # 시/도 매칭 확인
+                    if user_sido and user_sido in org_name:
+                        region_match = True
+                        print(f"  ✓ 시/도 매칭: {policy_name} (시/도: {user_sido}, 기관: {org_name})")
+                    else:
+                        # 3순위: 구/군 단위 상세 매칭
+                        region_clean = self.user_region.replace('특별시', '').replace('광역시', '').replace('특별자치시', '')
+                        region_clean = region_clean.replace('도', '').replace('시', '').replace('군', '').replace('구', '').strip()
+                        
+                        user_region_tokens = []
+                        if user_sido:
+                            user_region_tokens.append(user_sido)
+                        
+                        for token in region_clean.split():
+                            if token and token not in user_region_tokens:
+                                user_region_tokens.append(token)
+                        
+                        region_match = False
+                        for token in user_region_tokens:
+                            if token in org_name or token in additional_cond:
+                                region_match = True
+                                print(f"  ✓ 상세 매칭: {policy_name} (토큰: {token}, 기관: {org_name})")
+                                break
+                        
+                        if not region_match:
+                            print(f"  ✗ 제외: {policy_name} (기관: {org_name})")
             
             # 두 조건 모두 만족하면 포함
             if age_match and region_match:
